@@ -14,26 +14,27 @@ function pick(name) {
     return names[name];
 }
 
+app.use(function *(next) {
+    yield next;
+    this.response.set('Expires', 'Wed, 25 Dec 2013 00:00:00 GMT');
+})
+
 app.get('/naughty/:name', function *(name) {
     var state = pick(name);
 
-    if (state == 'naughty') {
-        this.body = 'OK';
-    } else {
-        this.status = 404;
-        this.body = 'NO';
+    if (state != 'naughty') {
+        this.redirect('/nice/' + name);
     }
+    this.body = state;
 })
 
 app.get('/nice/:name', function *(name) {
     var state = pick(name);
 
-    if (state == 'nice') {
-        this.body = 'OK';
-    } else {
-        this.status = 404;
-        this.body = 'NO';
+    if (state != 'nice') {
+        this.redirect('/naughty/' + name);
     }
+    this.body = state;
 })
 
 var port = process.env.PORT || 3000;
